@@ -1,0 +1,1 @@
+ERROR: nepovedlo se přidat množství u produktu 10 - undefined{}

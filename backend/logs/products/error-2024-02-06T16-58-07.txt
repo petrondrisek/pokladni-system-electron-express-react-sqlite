@@ -1,0 +1,1 @@
+ERROR: nepovedlo se přidat množství u produktu 10 - Test: {"id":10,"name":"Test","price":3,"amount":4,"category":"Test"}

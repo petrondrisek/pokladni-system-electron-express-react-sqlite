@@ -1,0 +1,1 @@
+ERROR: nepovedlo se přidat množství u produktu 10 - Test, SQLITE_ERROR: 6 values for 7 columns: {"id":10,"name":"Test","price":3,"amount":5,"category":"Test"}

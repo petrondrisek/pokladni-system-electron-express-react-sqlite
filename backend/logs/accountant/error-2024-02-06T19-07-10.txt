@@ -1,0 +1,1 @@
+ERROR: nepovedlo se uzavřít datum 2024-02-06 - SQLITE_CONSTRAINT: NOT NULL constraint failed: logs.product_id: {"cash_end":"10000","missing_money_end":"500"}

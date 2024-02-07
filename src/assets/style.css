@@ -1,0 +1,268 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.font-weight-bold{
+  font-weight: bold;
+}
+
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.text-danger.cursor-pointer:hover{
+  color: #a00 !important;
+}
+
+.navbar{
+  background: #00acfc;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  padding: 0;
+  margin: 0;
+  height: 3em;
+  position: fixed;
+  z-index: 999;
+  bottom: 0;
+  width: 100%;
+}
+
+.navbar a{
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: white;
+  text-decoration: none;
+}
+
+.navbar a li {
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar a li svg{
+  fill: white;
+  height: 2.5em;
+  width: 2.5em;
+}
+
+.navbar a.active{
+  background: #00cafc;
+  
+}
+
+.cartOpen{
+  background: #00acfc;
+  width: 4em;
+  height: 4em;
+  position: fixed;
+  z-index: 1000;
+  bottom: 4em;
+  right: 1em;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .3s ease-in-out;
+  cursor: pointer;
+}
+
+.cartOpen:hover{
+  background: #00cafc;
+}
+
+.cartOpen svg{
+  width: 2.5em;
+  height: 2.5em;
+  fill: white;
+}
+
+.cart{
+  width: 500px;
+  height: 100%;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border-left: 2px solid #e0e0e0;
+  padding: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.cart.show{
+  transform: translateX(0);
+}
+
+.cart.hidden{
+  transform: translateX(100%);
+}
+
+.cartClose svg{
+  width: 2.5em;
+  height: 2.5em;
+  fill: black;
+  position: absolute;
+  z-index: 1001;
+  cursor: pointer;
+  top: 1em;
+  right: 1em;
+}
+
+.cart ul{
+  margin-top: 3rem;
+}
+
+.cart li{
+  list-style-type: none;
+  display: grid;
+  grid-template-columns: 2fr 3fr 1fr .5fr;
+  align-items: center;
+  padding: 1rem;
+}
+
+.cart li:nth-child(odd){
+  background: #f5f5f5;
+}
+
+.container{ min-height: 100vh; margin-bottom: 5rem; padding: 2rem 0; }
+
+.dashboard{
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 1rem;
+}
+
+.dashboard__summary{
+  background: #f5f5f5;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+.products{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 1rem;
+  padding: 0;
+}
+
+.product{
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 5px;
+  z-index: 990;
+}
+
+.product__name{
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.product__price{
+  color: #090;
+  font-weight: bold;
+}
+
+.product__amount{
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.product .product__amount .form-control{
+  width: 30%;
+  text-align: center;
+  margin: 0 .5rem;
+}
+
+.product .btn-success{
+  width: 100%;
+  margin-top: 1rem;
+}
+
+h1 {
+  position: relative;
+  padding-left: 10px;
+  line-height: 1.5;
+  color: #14529f;
+  background: #f3f3f3;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  margin: 1rem 0;
+}
+
+h1::before,
+h1::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  background-color: #00cafc;
+}
+
+ h1::before {
+  left: 0;
+}
+
+h1::after {
+  right: 0;
+}
+
+@media only screen and (max-width: 1000px){
+  .navbar a li .menuTitle{
+    display: none;
+  }
+
+  .products{
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1rem;
+  }
+
+  .product__amount{
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .product__amount .form-control, .product__amount .btn{
+    width: 100% !important;
+  }
+
+  .dashboard{
+    grid-template-columns: 1fr;
+    padding: 2rem 1rem;
+  }
+}
+
+.uzaverka .btn{
+  width: 49%;
+  margin: 1rem .5%;
+}
+
+@media only screen and (max-width: 500px) {
+  .cart.show{
+    width: 100%;
+  }
+
+  .products{
+    grid-template-columns: 1fr;
+    grid-gap: 1rem;
+  }
+}
