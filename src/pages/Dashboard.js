@@ -1,9 +1,11 @@
 import React, {useState, useEffect} from 'react'
 import ProductsInCategory from '../components/productsInCategory'
 import Summary from '../components/summary'
+import { Link } from 'react-router-dom'
 
 function Dashboard(){
     const [categories, setCategories] = useState([]);
+    const [searchBar, setSearchBar] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,10 +22,14 @@ function Dashboard(){
     }, []);
 
     return (
-        <section className="dashboard container">
+        <section className="dashboard container container--main">
             <div className="dashboard__products">
+                <div className="d-flex">
+                    <input type="text" placeholder="Hledat mezi produkty ..." className="form-control" onChange={(e) => setSearchBar(e.target.value)}/>
+                    <Link to="/product/count"><button className="btn btn-warning">Režim počítání</button></Link>
+                </div>
                 {categories.map((category, index) => {
-                    return <ProductsInCategory key={index} category={category.category} />
+                    return <ProductsInCategory key={index} category={category.category} search={searchBar} />
                 })}
             </div>
             <div className="dashboard__summary">

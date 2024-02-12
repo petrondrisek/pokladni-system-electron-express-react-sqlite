@@ -138,7 +138,15 @@ code {
   background: #f5f5f5;
 }
 
-.container{ min-height: 100vh; margin-bottom: 5rem; padding: 2rem 0; }
+.user-container{
+  text-align: right;
+}
+
+.user-container__login{
+  display: none;
+}
+
+.container--main{ min-height: 100vh; margin-bottom: 5rem; padding: 2rem 0; }
 
 .dashboard{
   display: grid;
@@ -154,7 +162,7 @@ code {
 
 .products{
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-gap: 1rem;
   padding: 0;
 }
@@ -226,6 +234,65 @@ h1::after {
   right: 0;
 }
 
+.login-background{
+  min-height: 60vh;
+}
+
+.login{
+  margin: auto;
+  width: 500px;
+  display:flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.electron-in-page-search-window {
+  width: 300px;
+  height: 36px;
+  background-color: white;
+}
+ 
+.electron-in-page-search-window.search-inactive {
+  visibility: hidden;
+}
+ 
+.electron-in-page-search-window.search-active {
+  visibility: visible;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+.closeAccountFilter{
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media only screen and (max-width: 1200px){
+  .products {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
 @media only screen and (max-width: 1000px){
   .navbar a li .menuTitle{
     display: none;
@@ -264,5 +331,9 @@ h1::after {
   .products{
     grid-template-columns: 1fr;
     grid-gap: 1rem;
+  }
+
+  .login{
+    width: 100%;
   }
 }

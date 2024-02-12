@@ -1,8 +1,20 @@
 import React, {useState, useEffect} from 'react'
 import { uploadFile, getFileUrl } from '../components/uploadFile';
+import { useNavigate } from 'react-router-dom'
+import { useUserInfo } from '../components/UserContext';
 
 function Product(){
     const [categories, setCategories] = useState([]);
+
+    const navigate = useNavigate();
+    const { isLoggedIn } = useUserInfo();
+
+    useEffect(() => {
+        if(!isLoggedIn){
+            navigate('/');
+            return;
+        }
+    }, [isLoggedIn, navigate])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,7 +36,9 @@ function Product(){
     useEffect(() => {
         const fetchData = async () => {
             try {
-              const response = await fetch('http://localhost:8000/product');
+              const response = await fetch('http://localhost:8000/product', {
+                method: 'POST',
+              });
               const jsonData = await response.json();
               setProducts(jsonData);
             } catch (error) {
@@ -121,7 +135,7 @@ function Product(){
     };
 
     return (
-        <section className="productPage container">
+        <section className="productPage container container--main">
             <table className="table table-striped">
                 <thead>
                     <tr>

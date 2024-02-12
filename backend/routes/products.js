@@ -21,8 +21,10 @@ function errorHandle(data){
     console.log("Nezapsáno: " + fileContent)
 }
 
-router.get('/', (req, res) => {
-    db.all('SELECT * FROM products', (err, rows) => {
+router.post('/', (req, res) => {
+    const body = req.body;
+
+    db.all('SELECT * FROM `products` WHERE (`name` LIKE ? OR ? IS NULL OR ? = \'\')', [`%${body.search}%`, body.search, body.search], (err, rows) => {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -32,10 +34,11 @@ router.get('/', (req, res) => {
     });
 })
 
-router.get('/category/:category', (req, res) => {
-    const category = req.params.category
+router.post('/category/:category', (req, res) => {
+    const category = req.params.category;
+    const body = req.body;
 
-    db.all('SELECT * FROM `products` WHERE `category` = ?', [category], (err, rows) => {
+    db.all('SELECT * FROM `products` WHERE `category` = ? AND (`name` LIKE ? OR ? IS NULL OR ? = \'\')', [category, `%${body.search}%`, body.search, body.search], (err, rows) => {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -88,21 +91,22 @@ router.post('/:id/add', (req, res) => {
     const id = req.params.id
     const body = req.body;
 
-    db.run('UPDATE `products` SET `amount` = `amount` + 1 WHERE id = ?', id, (err, result) => {
+    db.run('UPDATE `products` SET `amount` = `amount` + ? WHERE id = ?', [body.add_amount, id], (err, result) => {
         if (err) {
             res.status(500).send(err.message);
             return;
         }
 
-        db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`) VALUES(?, ?, ?, ?, ?, ?, ?)',
+        db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`, `description`) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
         [
             'amount-add',
             fce.uniqueId(),
             id,
             body.name,
             body.price,
-            "1",
-            fce.getCurrentDateTime()
+            body.add_amount,
+            fce.getCurrentDateTime(),
+            body.description
         ], function(err) {
             if (err) {
                 errorHandle(`ERROR: nepovedlo se přidat množství u produktu ${id} - ${body.name}, ${err.message}: ` + JSON.stringify(body))
@@ -117,21 +121,22 @@ router.post('/:id/minus', (req, res) => {
     const id = req.params.id
     const body = req.body;
 
-    db.run('UPDATE `products` SET `amount` = `amount` - 1 WHERE id = ?', id, (err, result) => {
+    db.run('UPDATE `products` SET `amount` = `amount` - ? WHERE id = ?', [body.minus_amount, id], (err, result) => {
         if (err) {
             res.status(500).send(err.message);
             return;
         }
 
-        db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`) VALUES(?, ?, ?, ?, ?, ?, ?)',
+        db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`, `description`) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
         [
             'amount-minus',
             fce.uniqueId(),
             id,
             body.name,
             body.price,
-            "1",
-            fce.getCurrentDateTime()
+            body.minus_amount,
+            fce.getCurrentDateTime(),
+            body.description
         ], function(err) {
             if (err) {
                 errorHandle(`ERROR: nepovedlo se odebrat množství u produktu ${id} - ${body.name}, ${err.message}: ` + JSON.stringify(body))

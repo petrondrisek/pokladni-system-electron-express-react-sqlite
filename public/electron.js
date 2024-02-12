@@ -1,8 +1,9 @@
 // Module to control the application lifecycle and the native browser window.
-const { app, BrowserWindow, protocol } = require("electron");
+const { app, BrowserWindow, protocol, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const server = require('../server.js');
+const fs = require('fs');
 
 // Create the native browser window.
 function createWindow() {
@@ -13,8 +14,11 @@ function createWindow() {
     // communicate between node-land and browser-land.
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+      enableRemoteModule: true,
+      nodeIntegration: true,
+      devTools: !app.isPackaged,
     },
-    icon: __dirname + '/favicon.ico',
+    icon: path.join(__dirname, "favicon.ico"),
   });
  
   // In production, set the initial browser path to the local bundle generated
@@ -28,12 +32,17 @@ function createWindow() {
       })
     : "http://localhost:3000";
   mainWindow.loadURL(appURL);
+
+  ipcMain.on('search', (event, query) => {
+    mainWindow.webContents.findInPage(query);
+  });
  
   // Automatically open Chrome's DevTools in development mode.
   if (!app.isPackaged) {
     //mainWindow.webContents.openDevTools();
   }
 }
+
  
 // Setup a local proxy to adjust the paths of requested files when loading
 // them from the local production bundle (e.g.: local fonts, etc...).
@@ -88,6 +97,7 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 });
+
  
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

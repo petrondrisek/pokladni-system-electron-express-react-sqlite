@@ -8,7 +8,8 @@ function Summary({date, redirect, showRefresh = false}) {
     const [summary, setSummary] = useState({})
     const [mostSells, setMostSells] = useState([])
     const [showUzaverka, setShowUzaverka] = useState(false);
-    const [missingMoney, setMissingMoney] = useState(0);
+    const [cardMoney, setCardMoney] = useState(0);
+    const [purchaseMoney, setPurchaseMoney] = useState(0);
     const [cashMoney, setCashMoney] = useState(0);
     const { addNotification } = useNotification();
 
@@ -39,7 +40,7 @@ function Summary({date, redirect, showRefresh = false}) {
         fetchDataMostSells();
     }, [date]);
 
-    const sendUzaverka = (cash, missing) => {
+    const sendUzaverka = (cash, card, purchase_price) => {
         fetch(`http://localhost:8000/accountant/end/${date}`, {
             method: 'POST',
             headers: {
@@ -47,7 +48,8 @@ function Summary({date, redirect, showRefresh = false}) {
             },
             body: JSON.stringify({
                 cash_end: cash,
-                missing_money_end: missing
+                card_end: card,
+                purchase_price: purchase_price
             })
         }).then(response => {
             if (response.ok) {
@@ -68,22 +70,27 @@ function Summary({date, redirect, showRefresh = false}) {
             <ul>
                 <li>Celkem prodaných produktů: {summary.product_sold}</li>
                 <li>Celkem dokladů: {summary.receipt_count}</li>
-                <li>Celkem tržba: {summary.total_income} Kč</li>
-                <li>Nákup: {summary.product_bought}x - {summary.product_bought_money} Kč</li>
-                <li>Odpis: {summary.product_wasted}x - {summary.product_wasted_money} Kč</li>
-                <li>Manko: {summary.missing_money_end} Kč</li>
-                <li>V obálce: {summary.cash_end} Kč</li>
+                <li>Celkem tržba: {parseFloat(summary.total_income).toFixed(2)} Kč</li>
+                <li>Přidáno zboží: {summary.product_bought}x - {parseFloat(summary.product_bought_money).toFixed(2)} Kč</li>
+                <li>Odpis: {summary.product_wasted}x - {parseFloat(summary.product_wasted_money).toFixed(2)} Kč</li>
+                <li>Nákup: {summary.purchase_end} Kč</li>
+                <li>Platba kartami: {summary.card_end} Kč</li>
+                <li>Platba hotovostí: {summary.cash_end} Kč</li>
+                <li>Manko: {parseFloat(((summary.card_end ? summary.card_end : 0) + (summary.cash_end ? summary.cash_end : 0)) - summary.total_income).toFixed(2)} Kč</li>
+                <li>V obálce: {parseFloat(summary.total_income - summary.card_end - summary.purchase_end).toFixed(2)} Kč</li>
             </ul>
             {!summary.ended && !showUzaverka && (<button className="btn btn-warning" onClick={() => setShowUzaverka(true)}>Provést uzávěrku</button>)}
             
             {showUzaverka && (
                 <div class="uzaverka">
                     <h1>Uzávěrka</h1>
-                    <label for="cash">Peníze v obálce:</label>
+                    <label for="cash">Peníze v hotovosti:</label>
                     <input id="cash" type="number" className="form-control" value={cashMoney} onChange={(e) => setCashMoney(e.target.value)} placeholder="Celkem v obálce" />
-                    <label for="missing">Manko:</label>
-                    <input id="missing" type="number" className="form-control" value={missingMoney} onChange={(e) => setMissingMoney(e.target.value)}  placeholder="Manko" />
-                    <button className="btn btn-success" onClick={() => sendUzaverka(cashMoney, missingMoney)}>Uzavřít</button>
+                    <label for="card">Placeno kartou:</label>
+                    <input id="card" type="number" className="form-control" value={cardMoney} onChange={(e) => setCardMoney(e.target.value)}  placeholder="Placeno kartou" />
+                    <label for="purchase">Utraceno za nákupy:</label>
+                    <input id="purchase" type="number" className="form-control" value={purchaseMoney} onChange={(e) => setPurchaseMoney(e.target.value)}  placeholder="Utraceno za nákupy" />
+                    <button className="btn btn-success" onClick={() => sendUzaverka(cashMoney, cardMoney, purchaseMoney)}>Uzavřít</button>
                     <button className="btn btn-warning" onClick={() => setShowUzaverka(false)}>Zrušit</button>
                 </div>
             )}

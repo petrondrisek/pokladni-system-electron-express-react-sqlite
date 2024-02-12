@@ -21,10 +21,67 @@ function errorHandle(data){
 }
 
 
-router.get('/date/:date', (req, res) => {
-    const date = req.params.date;
+router.delete('/delete/:id', (req, res) => {
+    const id = req.params.id;
 
-    db.all('SELECT * FROM `logs` WHERE `date` LIKE ?', [`${date}%`], (err, rows) => {
+    db.run('DELETE FROM `logs` WHERE id = ?', id, (err, result) => {
+        if (err) {
+            res.status(500).send(err.message);
+        }
+
+        res.send('Success');
+    })
+})
+
+router.post('/search/:date/:page?', (req, res) => {
+    const body = req.body
+    const date = req.params.date;
+    const offset = req.params.page ? (req.params.page - 1) * 50 : 0
+
+    if(body.date === '' || body.date === null) body.date = "x";
+
+    db.all(`SELECT *
+    FROM logs
+    WHERE
+    (type = ? OR (? IS NULL OR ? = '')) AND
+    (product_id = ? OR (? IS NULL OR ? = '')) AND
+    (product_name LIKE ? OR (? IS NULL OR ? = '')) AND
+    (amount = ? OR (? IS NULL OR ? = '')) AND
+    ((? = 'x' AND date LIKE ?) OR
+    (? = '?' AND 1=1) OR
+    (date LIKE '%' || ? || '%')) ORDER BY id DESC LIMIT 50 OFFSET ?;`, [
+            body.type,
+            body.type,
+            body.type,
+            body.product_id,
+            body.product_id,
+            body.product_id,
+            `%${body.product_name}%`,
+            body.product_name,
+            body.product_name,
+            body.amount,
+            body.amount,
+            body.amount,
+            body.date,
+            `${date}%`,
+            body.date,
+            body.date,
+            offset
+        ], (err, rows) => {
+            if (err) {
+                res.status(500).send(err.message);
+            }
+
+            res.json(rows);
+        })
+})
+
+
+router.get('/date/:date/:page?', (req, res) => {
+    const date = req.params.date;
+    const offset = req.params.page ? (req.params.page - 1) * 50 : 0
+
+    db.all('SELECT * FROM `logs` WHERE `date` LIKE ? ORDER BY `id` DESC LIMIT 50 OFFSET ?', [`${date}%`, offset], (err, rows) => {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -44,9 +101,11 @@ router.get('/summary/:date', (req, res) => {
         "product_wasted_money": 0,
         "product_bought": 0,
         "product_bought_money": 0,
-        "missing_money_end": 0,
         "cash_end": 0,
-        "ended": false
+        "card_end": 0,
+        "purchase_end": 0,
+        "ended": false,
+        "product_amounts": []
     };
 
     db.all('SELECT * FROM `logs` WHERE `date` LIKE ?', [`${date}%`], (err, rows) => {
@@ -63,17 +122,21 @@ router.get('/summary/:date', (req, res) => {
                 jsonData.total_income += rows[row].price;
             }
             if(rows[row].type === 'amount-add') {
-                jsonData.product_bought += 1;
-                jsonData.product_bought_money += rows[row].price;
+                jsonData.product_bought += rows[row].amount;
+                jsonData.product_bought_money += rows[row].price * rows[row].amount;
             }
             if(rows[row].type === 'amount-minus') {
-                jsonData.product_wasted += 1;
-                jsonData.product_wasted_money += rows[row].price;
+                jsonData.product_wasted += rows[row].amount;
+                jsonData.product_wasted_money += rows[row].price * rows[row].amount;
             }
             if(rows[row].type === 'day-end') {
                 jsonData.ended = true;
-                jsonData.missing_money_end = rows[row].amount;
+                jsonData.card_end = rows[row].amount;
                 jsonData.cash_end = rows[row].price;
+                jsonData.product_amounts = JSON.parse(rows[row].description);
+            }
+            if(rows[row].type === 'day-end-purchase') {
+                jsonData.purchase_end = rows[row].price;
             }
         }
 
@@ -108,39 +171,66 @@ router.get('/is-ended/:date', (req, res) => {
     });
 })
 
-router.post('/end/:date', (req, res) => {
+router.post('/end/:date', async (req, res) => {
     const date = req.params.date;
     const body = req.body;
+    let products_amount = [];
 
-    db.get('SELECT EXISTS(SELECT 1 FROM `logs` WHERE `type` = ? and `date` = ?) AS result', ['day-end', `${date}`], (err, row) => {
+    try{
+        await db.all("SELECT `id`, `amount`, `name` FROM `products`", (err, rows) => {
         if (err) {
             console.error(err.message);
-            return;
+            throw new Error(err);
         }
-        
-        if(!row.result) {
 
-            db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`) VALUES(?, ?, ?, ?, ?, ?, ?)',
-            [
-                'day-end',
-                fce.uniqueId(),
-                -1,
-                "UZÁVĚRKA",
-                body.cash_end,
-                body.missing_money_end,
-                date
-            ], function(err) {
-                if (err) {
-                    errorHandle(`ERROR: nepovedlo se uzavřít datum ${date} - ${err.message}: ` + JSON.stringify(body))
-                } else {
-                    console.log(`[${fce.getCurrentDateTime()}}] uzavřeno datum ${date}, zalogováno`)
-                }
-            });
+        products_amount = rows;
+        })
 
-            res.send("Success");
+        await db.get('SELECT EXISTS(SELECT 1 FROM `logs` WHERE `type` = ? and `date` = ?) AS result', ['day-end', `${date}`], (err, row) => {
+            if (err) {
+                console.error(err.message);
+                throw new Error(err);
+            }
+            
+            if(!row.result) {
 
-        } else res.status(400).send('Already ended');
-    });
+                db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`, `description`) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    'day-end-purchase',
+                    fce.uniqueId(),
+                    -1,
+                    "UZÁVĚRKA - Nákup",
+                    body.purchase_price,
+                    0,
+                    date,
+                    null
+                ])
+
+                db.run('INSERT INTO `logs` (`type`, `log_id`, `product_id`, `product_name`, `price`, `amount`, `date`, `description`) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    'day-end',
+                    fce.uniqueId(),
+                    -1,
+                    "UZÁVĚRKA",
+                    body.cash_end,
+                    body.card_end,
+                    date,
+                    JSON.stringify(products_amount)
+                ], function(err) {
+                    if (err) {
+                        errorHandle(`ERROR: nepovedlo se uzavřít datum ${date} - ${err.message}: ` + JSON.stringify(body))
+                    } else {
+                        console.log(`[${fce.getCurrentDateTime()}}] uzavřeno datum ${date}, zalogováno`)
+                    }
+                });
+
+                res.send("Success");
+
+            } else throw new Error('Already ended');
+        });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 })
 
 module.exports = router

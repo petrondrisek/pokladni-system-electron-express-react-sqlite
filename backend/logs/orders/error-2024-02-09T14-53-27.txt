@@ -1,0 +1,1 @@
+Nezapsáno - chybějící data: {"id":54,"name":"1","price":0,"amount":15,"category":"test","image":null}

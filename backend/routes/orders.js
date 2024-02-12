@@ -17,7 +17,7 @@ function errorHandle(data){
         }
     });
 
-    console.log("Nezapsáno - chybějící data: " + item)
+    console.log("Nezapsáno - chybějící data: " + fileContent)
 }
 
 
