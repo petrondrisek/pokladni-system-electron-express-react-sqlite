@@ -63,7 +63,7 @@ function Cart() {
                 ))}
             </ul>
 
-            <h1>Celkem: {cartPrice.toFixed(2)} Kč</h1>
+            <p className="title">Celkem: {cartPrice.toFixed(2)} Kč</p>
             <div className="d-flex justify-content-between">
                 <button className="btn btn-success" onClick={() => sendCart(cartItems)}>Odeslat objednávku</button>
                 <button className="btn btn-warning" onClick={clearCart}>Vyprázdnit košík</button>
