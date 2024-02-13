@@ -3,6 +3,7 @@ import { useCart } from './CartContext';
 import { useNotification } from './NotificationContext';
 import { getFileUrl } from './uploadFile';
 import { Modal, Button } from 'react-bootstrap'
+import DateTime from './DateTime';
 
 function ProductsInCategory({category, search = ''}) {
     const [products, setProducts] = useState([]);
@@ -28,7 +29,7 @@ function ProductsInCategory({category, search = ''}) {
     useEffect(() => {
         const isEndedFetch = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/accountant/is-ended/${new Date().toISOString().split('T')[0]}`);
+                const response = await fetch(`http://localhost:8000/accountant/is-ended/${DateTime.getDate()}`);
                 const jsonData = await response.json();
                 setIsEnded(jsonData);
             } catch (error) {
@@ -128,7 +129,7 @@ function ProductsInCategory({category, search = ''}) {
 
     return (
         <>
-            <h1>{category}</h1>
+            <p className="title">{category}</p>
             <ul className="products" data-category={category}>
                 {products.map((product, index) => (
                     <li className="product" key={index}>

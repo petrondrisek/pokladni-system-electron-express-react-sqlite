@@ -205,7 +205,7 @@ code {
   margin-top: 1rem;
 }
 
-h1 {
+.title {
   position: relative;
   padding-left: 10px;
   line-height: 1.5;
@@ -214,10 +214,11 @@ h1 {
   text-transform: uppercase;
   font-size: 1.5rem;
   margin: 1rem 0;
+  font-weight: 500;
 }
 
-h1::before,
-h1::after {
+.title::before,
+.title::after {
   content: '';
   position: absolute;
   top: 0;
@@ -226,11 +227,11 @@ h1::after {
   background-color: #00cafc;
 }
 
- h1::before {
+ .title::before {
   left: 0;
 }
 
-h1::after {
+.title::after {
   right: 0;
 }
 

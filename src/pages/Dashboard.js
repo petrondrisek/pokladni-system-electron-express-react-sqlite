@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import ProductsInCategory from '../components/productsInCategory'
 import Summary from '../components/summary'
 import { Link } from 'react-router-dom'
+import DateTime from '../components/DateTime'
 
 function Dashboard(){
     const [categories, setCategories] = useState([]);
@@ -33,7 +34,7 @@ function Dashboard(){
                 })}
             </div>
             <div className="dashboard__summary">
-                <Summary date={new Date().toISOString().split('T')[0]} redirect="/refresh/dashboard" showRefresh={true} />
+                <Summary date={DateTime.getDate()} redirect="/refresh/dashboard" showRefresh={true} />
             </div>
         </section>
     )

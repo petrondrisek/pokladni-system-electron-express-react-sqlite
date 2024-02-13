@@ -63,10 +63,9 @@ function Summary({date, redirect, showRefresh = false}) {
     }
 
     return (
-        <>
         <div>
             Výpis platný ke dni: {date} {showRefresh && (<Link to={redirect}>Aktualizovat výsledky</Link>)}
-            <h1>Denní tržby</h1>
+            <p className="title">Denní tržby</p>
             <ul>
                 <li>Celkem prodaných produktů: {summary.product_sold}</li>
                 <li>Celkem dokladů: {summary.receipt_count}</li>
@@ -83,7 +82,7 @@ function Summary({date, redirect, showRefresh = false}) {
             
             {showUzaverka && (
                 <div class="uzaverka">
-                    <h1>Uzávěrka</h1>
+                    <p className="title">Uzávěrka</p>
                     <label for="cash">Peníze v hotovosti:</label>
                     <input id="cash" type="number" className="form-control" value={cashMoney} onChange={(e) => setCashMoney(e.target.value)} placeholder="Celkem v obálce" />
                     <label for="card">Placeno kartou:</label>
@@ -95,14 +94,13 @@ function Summary({date, redirect, showRefresh = false}) {
                 </div>
             )}
             
-            <h1>Denní prodej</h1>
+            <p className="title">Denní prodej</p>
             <ul>
                 {mostSells.map((product, index) => (
                     <li key={index}>{product.product_name} - {product.count}x - {product.price} Kč</li>
                 ))}
             </ul>
         </div>
-        </>
     )
 }
 

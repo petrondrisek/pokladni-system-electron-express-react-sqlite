@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import DateTime from './DateTime';
 
 const UserContext = createContext();
 
@@ -9,7 +10,7 @@ export const UserProvider = ({ children }) => {
   const login = (userInfo) => {
     setLoggedUser({
         name: userInfo.name,
-        last_login: new Date().toISOString()
+        last_login: DateTime.getDateTime()
     });
     
     setLoggedIn(true);

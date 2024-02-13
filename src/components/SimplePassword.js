@@ -47,7 +47,7 @@ function SimplePassword() {
     )}
     {!redirecting && (<section className="d-flex align-items-center login-background">
       <div className="login">
-            <h1>Vyžadováno přihlášení</h1>
+            <p className="title">Vyžadováno přihlášení</p>
             <input type="password" placeholder="Zadejte heslo ..." onClick= {() => setPassword(password)} onKeyDown={handleKeyDown} value={password} onChange={(e) => setPassword(e.target.value)} className="form-control" />
             <button className="btn btn-primary w-100" onClick={() => handleLogin(password)}>Potvrdit</button>
       </div>

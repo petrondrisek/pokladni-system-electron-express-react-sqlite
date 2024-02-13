@@ -3,12 +3,12 @@ import Summary from "../components/summary";
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'
 import { useUserInfo } from '../components/UserContext';
+import DateTime from '../components/DateTime';
 
 function Acountant(){
-    const [dateInput, setDateInput] = useState(new Date().toISOString().split('T')[0]);
+    const [dateInput, setDateInput] = useState(DateTime.getDate());
     const [pageRecords, setPageRecords] = useState(1);
     const [records, setRecords] = useState([])
-    const [showStats, setShowStats] = useState(false);
     const { date } = useParams();
 
     /*Vyhledávání v logu*/
@@ -61,7 +61,7 @@ function Acountant(){
         if(searchAmount !== null) body.amount = searchAmount;
         if(searchDate !== null) body.date = searchDate;
         else if(searchDate === '?') body.date = '?';
-        else body.date = `${new Date().toISOString().split('T')[0]}`;
+        else body.date = `${DateTime.getDate()}`;
     
         try{ 
             fetch(`http://localhost:8000/accountant/search/${date}/${page}`, {
@@ -109,13 +109,12 @@ function Acountant(){
             <p>Vyberte období: </p>
             <div className="d-flex gap-3">
                 <input type="date" className="form-control w-100" value={dateInput} onChange={handleInput} />
-                <button className="btn btn-secondary w-100" onClick={() => setShowStats(!showStats)}>Zobrazit statistiky</button>
             </div>
 
-            {dateInput !== '' && showStats && (<Summary date={dateInput} redirect={"/refresh/accountant/"+dateInput} />)}
+            <Summary date={dateInput} redirect={"/refresh/accountant/"+dateInput} />
 
 
-            <h1>Zakončení skladu:</h1>
+            <p className="title">Zakončení skladu:</p>
             <table className="table table-striped">
                 <thead>
                     <tr>
@@ -148,7 +147,7 @@ function Acountant(){
                 </tbody>
             </table>
 
-            <h1>Akce log:</h1>
+            <p className="title">Akce log:</p>
             {!(toggleSearch || searching) && (<button className="btn btn-secondary float-right" onClick={() => setToggleSearch(true)}>Zobrazit filtr</button>)}
             
             {(toggleSearch || searching) && (
