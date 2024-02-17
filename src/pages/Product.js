@@ -123,7 +123,8 @@ function Product(){
                     price: newProductPriceInput,
                     amount: newProductAmountInput,
                     category: newProductCategoryInput,
-                    image: body.image || null
+                    image: body.image || null,
+                    order: 99999
                 }
             ]);
     

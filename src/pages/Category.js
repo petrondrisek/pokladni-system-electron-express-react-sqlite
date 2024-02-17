@@ -70,7 +70,7 @@ function Category(){
     
             const data = await response.json();
     
-            setCategories([...categories, { id: data.id, category: newCategoryInput }]);
+            setCategories([...categories, { id: data.id, category: newCategoryInput, order: 99999 }]);
             setNewCategoryInput('');
         } catch (error) {
             console.error('Chyba:', error.message);
