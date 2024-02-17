@@ -22,7 +22,7 @@ router.put('/add', (req, res) => {
         return;
     }
 
-    db.run('INSERT INTO `categories` (`category`, `order`) VALUES(?)', [body.category, 99999], function(err) {
+    db.run('INSERT INTO `categories` (`category`, `order`) VALUES(?, ?)', [body.category, 99999], function(err) {
         if (err) {
             res.status(500).send(err.message);
             return;
