@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { uploadFile, getFileUrl } from '../components/uploadFile';
 import { useNavigate } from 'react-router-dom'
 import { useUserInfo } from '../components/UserContext';
+import { Modal, Button } from 'react-bootstrap'
 
 function Product(){
     const [categories, setCategories] = useState([]);
@@ -134,6 +135,64 @@ function Product(){
         }
     };
 
+    //Update modal
+    const [updateShow, setUpdateShow] = useState(false);
+    const [updateId, setUpdateId] = useState(-1);
+    const [updateName, setUpdateName] = useState('');
+    const [updatePrice, setUpdatePrice] = useState(0);
+    const [updateCategory, setUpdateCategory] = useState('');
+    const [updateOrder, setUpdateOrder] = useState(99999);
+
+    const handleUpdateClose = () => {
+        setUpdateShow(false);
+    }
+
+    const updateProductHandle = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/product/update/${updateId}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: updateName,
+                    price: updatePrice,
+                    category: updateCategory,
+                    order: updateOrder
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error('Chyba při aktualizování produktu: ' + response.status);
+            }
+
+            setProducts(products.map(product => product.id === updateId ? {
+                id: updateId,
+                name: updateName,
+                price: updatePrice,
+                category: updateCategory,
+                order: updateOrder,
+                amount: product.amount,
+                image: product.image
+            } : product));
+
+            setUpdateShow(false);
+        } catch (error) {
+            console.error('Chyba:', error.message);
+        }
+    }
+
+    const updateRowModal = (product) => {
+        setUpdateId(product.id);
+        setUpdateName(product.name);
+        setUpdatePrice(product.price);
+        setUpdateCategory(product.category);
+        setUpdateOrder(product.order);
+
+        setUpdateShow(true);
+    }
+    
+
     return (
         <section className="productPage container container--main">
             <table className="table table-striped">
@@ -144,6 +203,7 @@ function Product(){
                         <th>Obrázek</th>
                         <th>Cena</th>
                         <th>Množství</th>
+                        <th>Pořadí</th>
                         <th>Kategorie</th>
                         <th>Akce</th>
                     </tr>
@@ -155,6 +215,7 @@ function Product(){
                         <td><input type="file" onChange={handleNewProductImageChange} accept='image/*'/></td>
                         <td><input type="number" className="form-control" onChange={handleNewProductPriceInput} value={newProductPriceInput} placeholder="Cena produktu" /></td>
                         <td><input type="number" className="form-control" onChange={handleNewProductAmountInput} value={newProductAmountInput} placeholder="Množství produktu" /></td>
+                        <td></td>
                         <td>
                             <select className="form-control" onChange={(event) => handleNewProductCategoryInput(event)}>
                                 <option value="">Vyberte kategorii ...</option>
@@ -172,12 +233,48 @@ function Product(){
                             <td>{product.image ? <img src={getFileUrl(product.image)} height="50px" alt={product.name} /> : ''}</td>
                             <td>{product.price}</td>
                             <td>{product.amount}</td>
+                            <td>{product.order}</td>
                             <td>{product.category}</td>
-                            <td><span className="font-weight-bold text-danger cursor-pointer" onClick={() => deleteRow(product.id)}>Smazat</span></td>
+                            <td>
+                                <span className="font-weight-bold text-warning cursor-pointer" onClick={() => updateRowModal(product)}>Upravit</span>
+                                &nbsp;
+                                <span className="font-weight-bold text-danger cursor-pointer" onClick={() => deleteRow(product.id)}>Smazat</span>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            <Modal show={updateShow} onHide={handleUpdateClose}>
+                <Modal.Header closeButton>
+                <Modal.Title>Upravit produkt</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <label htmlFor="name">Nový název produktu</label>
+                    <input type="text" id="name" className="form-control" value={updateName} onChange={(e) => setUpdateName(e.target.value)}/>
+                    
+                    <label htmlFor="price">Cena:</label>
+                    <input type="number" id="price" className="form-control" onChange={(e) => setUpdatePrice(e.target.value)} value={updatePrice} />
+
+                    <label htmlFor="order">Pořadí:</label>
+                    <input type="number" id="order" className="form-control" onChange={(e) => setUpdateOrder(e.target.value)} value={updateOrder} />
+                
+                    <label htmlFor="category">Kategorie:</label>
+                    <select id="category" className="form-control" onChange={(event) => setUpdateCategory(event.target.value)}>
+                                {categories.map((category, index) => (
+                                    <option key={index} value={category.category} selected={category.category === updateCategory}>{category.category}</option>
+                                ))}
+                    </select>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="primary" onClick={() => updateProductHandle(updateId, updateName, updateOrder)}>
+                    Upravit kategorii
+                </Button>
+                <Button variant="secondary" onClick={handleUpdateClose}>
+                    Zavřít
+                </Button>
+                </Modal.Footer>
+            </Modal>
         </section>
     )
 }

@@ -24,7 +24,7 @@ function errorHandle(data){
 router.post('/', (req, res) => {
     const body = req.body;
 
-    db.all('SELECT * FROM `products` WHERE (`name` LIKE ? OR ? IS NULL OR ? = \'\')', [`%${body.search}%`, body.search, body.search], (err, rows) => {
+    db.all('SELECT * FROM `products` WHERE (`name` LIKE ? OR ? IS NULL OR ? = \'\') ORDER BY `order`', [`%${body.search}%`, body.search, body.search], (err, rows) => {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -38,7 +38,7 @@ router.post('/category/:category', (req, res) => {
     const category = req.params.category;
     const body = req.body;
 
-    db.all('SELECT * FROM `products` WHERE `category` = ? AND (`name` LIKE ? OR ? IS NULL OR ? = \'\')', [category, `%${body.search}%`, body.search, body.search], (err, rows) => {
+    db.all('SELECT * FROM `products` WHERE `category` = ? AND (`name` LIKE ? OR ? IS NULL OR ? = \'\') ORDER BY `order`', [category, `%${body.search}%`, body.search, body.search], (err, rows) => {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -56,13 +56,14 @@ router.put('/add', (req, res) => {
         return;
     }
 
-    db.run('INSERT INTO `products` (`name`, `price`, `amount`, `category`, `image`) VALUES(?, ?, ?, ?, ?)', 
+    db.run('INSERT INTO `products` (`name`, `price`, `amount`, `category`, `image`, `order`) VALUES(?, ?, ?, ?, ?, ?)', 
         [
             body.name, 
             parseFloat(body.price), 
             parseInt(body.amount), 
             body.category,
-            body.image ? body.image : null
+            body.image ? body.image : null,
+            99999
         ], function (err) {
             if (err) {
                 res.status(500).send(err.message);
@@ -73,6 +74,25 @@ router.put('/add', (req, res) => {
             });
         });
 });
+
+router.post('/update/:id', (req, res) => {
+    const id = req.params.id
+    const body = req.body;
+
+    if(body.name == null || body.price == null || body.category == null || body.order == null) {
+        res.status(400).send('Missing data!');
+        return;
+    }
+
+    db.run('UPDATE `products` SET `name` = ?, `price` = ?, `category` = ?, `order` = ? WHERE id = ?', [body.name, parseFloat(body.price), body.category, parseInt(body.order), id], (err, result) => {
+        if (err) {
+            res.status(500).send(err.message);
+            return;
+        }
+
+        res.send('Success');
+    })
+})
 
 router.delete('/delete/:id', (req, res) => {
     const id = req.params.id

@@ -4,7 +4,7 @@ const db = require('../database');
 
 
 router.get('/', (req, res) => {
-    db.all('SELECT * FROM categories', (err, rows) => {
+    db.all('SELECT * FROM categories ORDER BY `order`', (err, rows) => {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -22,7 +22,7 @@ router.put('/add', (req, res) => {
         return;
     }
 
-    db.run('INSERT INTO `categories` (`category`) VALUES(?)', body.category, function(err) {
+    db.run('INSERT INTO `categories` (`category`, `order`) VALUES(?)', [body.category, 99999], function(err) {
         if (err) {
             res.status(500).send(err.message);
             return;
@@ -33,6 +33,26 @@ router.put('/add', (req, res) => {
         });
      });
 });
+
+router.post('/update/:id', (req, res) => {
+    const id = req.params.id
+    const body = req.body;
+
+    if(body.category == null || body.order == null){
+        res.status(400).send("Missing data");
+        return;
+    }
+
+    db.run('UPDATE `categories` SET `category` = ?, `order` = ? WHERE id = ?', [body.category, body.order, id], (err, result) => {
+        if (err) {
+            res.status(500).send(err.message);
+            return;
+        }
+
+        res.send('Success');
+    })
+    }
+)
 
 router.delete('/delete/:id', (req, res) => {
     const id = req.params.id
