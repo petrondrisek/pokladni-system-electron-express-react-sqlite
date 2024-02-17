@@ -268,7 +268,7 @@ function Product(){
                 </Modal.Body>
                 <Modal.Footer>
                 <Button variant="primary" onClick={() => updateProductHandle(updateId, updateName, updateOrder)}>
-                    Upravit kategorii
+                    Upravit produkt
                 </Button>
                 <Button variant="secondary" onClick={handleUpdateClose}>
                     Zavřít
